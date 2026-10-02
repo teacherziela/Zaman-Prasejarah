@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Primitive Portal | HistoryVerse 360</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+</head>
+<body>
+<video id="video" autoplay playsinline></video>
+<canvas id="canvas"></canvas>
+<div class="shade"></div>
+
+<header>
+  <div><div class="brand">HISTORYVERSE 360 • CIKGU ZAMZILA</div>
+  <h1>🏺 PRIMITIVE PORTAL</h1><div class="sub">BAB 3 • ZAMAN PRASEJARAH</div></div>
+  <div class="hud"><div><span id="score">0</span><small>SKOR</small></div><div><span id="lives">❤️❤️❤️</span><small>NYAWA</small></div></div>
+</header>
+
+<div id="instruction">🖐️ Genggam objek → bawa ke portal zaman → buka tangan untuk lepaskan</div>
+<div id="feedback"></div>
+
+<div id="objectCard">
+  <div id="emoji">🪨</div><b id="objectName">Kapak batu ringkas</b>
+  <small>GENGGAM SAYA!</small>
+</div>
+<div id="cursor">✋</div>
+
+<div class="portals">
+ <div class="portal" data-era="Paleolitik"><span>🔥</span><b>PALEOLITIK</b></div>
+ <div class="portal" data-era="Mesolitik"><span>🏹</span><b>MESOLITIK</b></div>
+ <div class="portal" data-era="Neolitik"><span>🏺</span><b>NEOLITIK</b></div>
+ <div class="portal" data-era="Logam"><span>⚔️</span><b>ZAMAN LOGAM</b></div>
+</div>
+
+<div id="welcome">
+ <div class="panel"><div class="logo">🏺</div><h2>PRIMITIVE PORTAL</h2>
+ <p>Gunakan tangan di hadapan webcam untuk mengembalikan artifak dan petunjuk ke zaman yang betul.</p>
+ <button id="start">📷 AKTIFKAN KAMERA & MULA</button>
+ <button id="mouse">🖱️ CUBA MOD DEMO</button>
+ <small>Kamera diproses pada peranti. Pastikan pelayar diberi kebenaran kamera.</small></div>
+</div>
+
+<div id="end" class="hidden"><div class="panel"><h2>✨ MISI SELESAI!</h2><div class="big" id="finalScore">0</div><p id="rank"></p><button onclick="location.reload()">MAIN SEMULA</button></div></div>
+<script src="game.js"></script>
+</body></html>
