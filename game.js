@@ -1,36 +1,8 @@
-const video=document.querySelector('#video'),canvas=document.querySelector('#canvas'),ctx=canvas.getContext('2d');
-const card=document.querySelector('#objectCard'),cursor=document.querySelector('#cursor'),feedback=document.querySelector('#feedback');
-const scoreEl=document.querySelector('#score'),livesEl=document.querySelector('#lives');
-const items=[
- {e:'🪨',n:'Peralatan batu ringkas',era:'Paleolitik'},
- {e:'🔥',n:'Kehidupan nomad',era:'Paleolitik'},
- {e:'🏹',n:'Alat memburu yang semakin baik',era:'Mesolitik'},
- {e:'🐟',n:'Menangkap ikan & mengumpul makanan',era:'Mesolitik'},
- {e:'🏺',n:'Tembikar',era:'Neolitik'},
- {e:'🌾',n:'Pertanian & penternakan',era:'Neolitik'},
- {e:'🏘️',n:'Petempatan kekal',era:'Neolitik'},
- {e:'⚔️',n:'Peralatan daripada logam',era:'Logam'},
- {e:'🔨',n:'Penggunaan gangsa dan besi',era:'Logam'}
-].sort(()=>Math.random()-.5);
-let index=0,score=0,lives=3,held=false,wasPinch=false,demo=false,active=false;
-function size(){canvas.width=innerWidth;canvas.height=innerHeight}addEventListener('resize',size);size();
-function load(){if(index>=items.length||lives<=0)return finish();let x=items[index];emoji.textContent=x.e;objectName.textContent=x.n;card.style.left='50%';card.style.top='39%';card.style.transform='translate(-50%,-50%)'}
-function pointIn(el,x,y){let r=el.getBoundingClientRect();return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom}
-function drop(x,y){if(!held)return;held=false;let target=[...document.querySelectorAll('.portal')].find(p=>pointIn(p,x,y));if(!target){card.style.left='50%';card.style.top='39%';return}
- if(target.dataset.era===items[index].era){score+=100;scoreEl.textContent=score;flash('✨ TEPAT! +100','ok');index++;setTimeout(load,650)}
- else{lives--;livesEl.textContent='❤️'.repeat(lives)+'🖤'.repeat(3-lives);flash('💥 SALAH ZAMAN!','bad');setTimeout(()=>{card.style.left='50%';card.style.top='39%';if(lives<=0)finish()},650)}}
-function flash(t){feedback.textContent=t;setTimeout(()=>feedback.textContent='',600)}
-function moveHand(x,y,pinch){cursor.style.display='block';cursor.style.left=x+'px';cursor.style.top=y+'px';cursor.textContent=pinch?'✊':'✋';
- document.querySelectorAll('.portal').forEach(p=>p.classList.toggle('hot',held&&pointIn(p,x,y)));
- if(pinch&&!wasPinch&&pointIn(card,x,y))held=true;
- if(held){card.style.left=x+'px';card.style.top=y+'px';card.style.transform='translate(-50%,-50%) scale(.9)'}
- if(!pinch&&wasPinch)drop(x,y);wasPinch=pinch}
-function finish(){active=false;document.querySelector('#end').classList.remove('hidden');finalScore.textContent=score+' MATA';rank.textContent=score>=700?'🏆 PAKAR PRASEJARAH!':score>=400?'⭐ PENJELAJAH SEJARAH!':'🗿 Cuba lagi untuk kuasai garis masa.'}
-async function cameraMode(){document.querySelector('#welcome').classList.add('hidden');active=true;load();
- const hands=new Hands({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});hands.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:.55,minTrackingConfidence:.55});
- hands.onResults(r=>{ctx.clearRect(0,0,canvas.width,canvas.height);if(!active||!r.multiHandLandmarks?.length)return;let l=r.multiHandLandmarks[0],ix=(1-l[8].x)*innerWidth,iy=l[8].y*innerHeight,tx=(1-l[4].x)*innerWidth,ty=l[4].y*innerHeight;let d=Math.hypot(ix-tx,iy-ty);moveHand(ix,iy,d<55)});
- try{const cam=new Camera(video,{onFrame:async()=>await hands.send({image:video}),width:1280,height:720});cam.start()}catch(e){alert('Kamera tidak dapat dibuka. Cuba MOD DEMO dahulu.');location.reload()}}
-function demoMode(){demo=true;active=true;document.querySelector('#welcome').classList.add('hidden');video.style.display='none';load();cursor.style.display='block';
- addEventListener('mousemove',e=>{cursor.style.left=e.clientX+'px';cursor.style.top=e.clientY+'px';if(held){card.style.left=e.clientX+'px';card.style.top=e.clientY+'px'}});
- addEventListener('mousedown',e=>{if(pointIn(card,e.clientX,e.clientY))held=true;cursor.textContent='✊'});addEventListener('mouseup',e=>{cursor.textContent='✋';drop(e.clientX,e.clientY)})}
-start.onclick=cameraMode;mouse.onclick=demoMode;
+const v=video,c=card,cur=cursor,ports=[...document.querySelectorAll('.portals div')];const items=[['🪨','Peralatan batu ringkas','Paleolitik'],['🔥','Kehidupan nomad','Paleolitik'],['🏹','Alat memburu semakin baik','Mesolitik'],['🐟','Menangkap ikan dan mengumpul makanan','Mesolitik'],['🏺','Tembikar','Neolitik'],['🌾','Pertanian dan penternakan','Neolitik'],['🏘️','Petempatan kekal','Neolitik'],['⚔️','Peralatan daripada logam','Logam'],['🔨','Penggunaan gangsa dan besi','Logam']].sort(()=>Math.random()-.5);let i=0,s=0,l=3,held=false,lock=false;
+function inside(el,x,y,p=0){let r=el.getBoundingClientRect();return x>r.left-p&&x<r.right+p&&y>r.top-p&&y<r.bottom+p}function load(){if(i>=items.length||l<=0)return finish();emoji.textContent=items[i][0];objectName.textContent=items[i][1];c.style.left='50%';c.style.top='40%';c.classList.remove('caught');held=lock=false}function msg(t){feedback.textContent=t;setTimeout(()=>feedback.textContent='',650)}
+function move(x,y){cur.style.display='block';cur.style.left=x+'px';cur.style.top=y+'px';if(!held&&!lock&&inside(c,x,y,90)){held=true;c.classList.add('caught');msg('✨ OBJEK DIAMBIL! BAWA KE PORTAL')}if(held){c.style.left=x+'px';c.style.top=y+'px';ports.forEach(p=>p.classList.toggle('hot',inside(p,x,y,35)));let p=ports.find(p=>inside(p,x,y,15));if(p)drop(p)}}
+function drop(p){if(lock)return;lock=true;held=false;if(p.dataset.era===items[i][2]){s+=100;score.textContent=s;msg('✨ TEPAT! +100');i++}else{l--;lives.textContent='❤️'.repeat(l)+'🖤'.repeat(3-l);msg('💥 SALAH ZAMAN!')}setTimeout(load,750)}
+function finish(){end.classList.remove('hidden');finalScore.textContent=s+' MATA'}
+async function cam(){welcome.classList.add('hidden');load();let h=new Hands({locateFile:f=>'https://cdn.jsdelivr.net/npm/@mediapipe/hands/'+f});h.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:.5,minTrackingConfidence:.5});h.onResults(r=>{if(!r.multiHandLandmarks?.length)return;let a=r.multiHandLandmarks[0],ids=[0,5,9,13,17],x=0,y=0;ids.forEach(n=>{x+=a[n].x;y+=a[n].y});move((1-x/5)*innerWidth,(y/5)*innerHeight)});new Camera(v,{onFrame:async()=>h.send({image:v}),width:1280,height:720}).start()}
+function dm(){welcome.classList.add('hidden');v.style.display='none';load();addEventListener('mousemove',e=>move(e.clientX,e.clientY))}
+start.onclick=cam;demo.onclick=dm;
